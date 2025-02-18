@@ -31,7 +31,7 @@ def medir_generador_y_voltimetro(generador, voltimetro, df, tiempo):
      tiempo_maximo = 0.01 # Define el tiempo máximo de medición en la iteración, para poder tomar varios valores en un intervalo de tiempo antes de pasar al siguiente nivel de corriente
      inicio_tiempo = time.time() # Guarda el tiempo de inicio
      while (time.time() - inicio_tiempo) < tiempo_maximo: # Ejecuta el bucle hasta que pase el tiempo máximo
-         time.sleep(0.01) # Espera por 0.01 segundos para empezar
+         time.sleep(3) # Espera por 0.01 segundos para empezar
          tiempo_actual = time.time() - tiempo # Calcula el tiempo actual
          BUFFER_generador = float(generador.query("*IDN?")) # Lee el valor del generador
          print("valor medido del generador:", BUFFER_generador)
