@@ -1,6 +1,12 @@
 import serial
 import time
 
+# - connect_to_arduino works correctly
+# - query_temperatures works correctly
+# - close_connection works correctly
+#
+# It is a simple code only for connecting, reading, and close both thermometers
+
 def connect_to_arduino(port, baud_rate=115200, timeout=2):
     """
     Establishes connection to the Arduino.
@@ -39,6 +45,7 @@ def close_connection(arduino):
         arduino.close()
         print("Connection closed.")
 
+# The following is an example function to read both thermometers
 def main():
     port = 'COM5'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
     arduino = connect_to_arduino(port)

@@ -1,6 +1,19 @@
 import serial
 import time
 
+# - connect_to_arduino works correctly
+# - send_movement_command works correctly
+# - read_repsonse works correctly
+# - wait_for_movement_to_complete works correctly
+# - close_connection works correctly
+#
+# We could define several function to go up or go down until 
+# touch the swich, or some function that keep the distance that 
+# it has moved
+#
+# I would like to write this same but using Classes of OOP
+# I think the implementation could be better, but this one works.
+
 def connect_to_arduino(port, baud_rate=115200, timeout=2):
     """
     Establishes connection to the Arduino.
@@ -19,10 +32,10 @@ def send_movement_command(arduino, distance_mm):
     Sends the movement command to the Arduino.
     The command format is 'M<distance>' (e.g., 'M100' for 100 mm).
     """
-    command = f"M{distance_mm}\n"
+    command = f"M{distance_mm}\n" # command beginning with "M" and distance in mm.
     try:
-        arduino.write(command.encode())
-        print(f"Sent command: {command.strip()}")
+        arduino.write(command.encode()) # write the command in serial port
+        #print(f"Sent command: {command.strip()}") # print the command, but it is not neccesary so far
     except Exception as e:
         print("Error while sending movement command:", e)
 
@@ -37,7 +50,7 @@ def read_response(arduino):
         while arduino.in_waiting > 0:
             response = arduino.readline().decode().strip()
             if response:
-                print("Arduino:", response)
+                print("Arduino:", response) 
                 return response
     except Exception as e:
         print("Error while reading from Arduino:", e)
@@ -50,7 +63,7 @@ def wait_for_movement_to_complete(arduino):
     print("Waiting for movement to complete...")
     while True:
         if read_response(arduino) == "Motor movement complete":
-            return
+            return # stops waiting when the response is Motor movement complete (may it will be changed for a shorter response)
         time.sleep(0.1)  # Adjust the polling frequency if needed
 
 def close_connection(arduino):
@@ -61,6 +74,7 @@ def close_connection(arduino):
         arduino.close()
         print("Connection closed.")
 
+# The following is an example function to control the step by step motor
 def main():
     port = 'COM12'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
     arduino = connect_to_arduino(port)

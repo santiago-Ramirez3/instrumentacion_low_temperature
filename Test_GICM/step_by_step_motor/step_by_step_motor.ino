@@ -51,10 +51,6 @@ void loop() {
       // Convert the input to a float value (excluding the "M" at the beginning)
       desiredDistance = input.substring(1).toFloat();
 
-      Serial.print("Received distance: ");
-      Serial.print(desiredDistance);
-      Serial.println(" mm");
-
       // Calculate the direction based on the sign of the desired distance
       int direction = (desiredDistance >= 0) ? 1 : -1;
 

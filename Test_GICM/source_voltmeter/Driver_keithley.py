@@ -12,7 +12,7 @@ def set_up_voltmeter(voltmeter):
     voltmeter.write("F10STX") # Configura el voltímetro
     voltmeter.write("10NX") # Configura el voltímetro
 
-def programar_source(source, voltmeter, level, delay, tiempo):
+def program_source(source, voltmeter, level, delay, tiempo):
     # Configura el source y mide sus valores junto con el voltímetro
     source.write("REMOTE716") # Configura el source en modo remoto
     source.write("F1,0X") # Configura el source como un source de corriente directa (se debe de enviar dos veces para que el instrumento lo acepte)
@@ -66,7 +66,7 @@ def current_sweep(initialC, finalC, stepC, source, voltmeter):
     # Bucle para programar el source y medir
     for i in current_values:
         level = i # Incrementa el nivel del source
-        programar_source(source, voltmeter, level, delay,tiempo) # Programa y mide
+        program_source(source, voltmeter, level, delay,tiempo) # Programa y mide
         print(i)
 
 def main():
