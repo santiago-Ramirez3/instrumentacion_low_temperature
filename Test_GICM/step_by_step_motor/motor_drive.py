@@ -50,7 +50,7 @@ def read_response(arduino):
         while arduino.in_waiting > 0:
             response = arduino.readline().decode().strip()
             if response:
-                print("Arduino:", response) 
+                print(response) 
                 return response
     except Exception as e:
         print("Error while reading from Arduino:", e)
@@ -99,5 +99,17 @@ def main():
         finally:
             close_connection(arduino)
 
+def go_down_and_up():
+    port = 'COM4'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
+    arduino = connect_to_arduino(port)
+
+    send_movement_command(arduino, "-1000")
+    wait_for_movement_to_complete(arduino)
+
+    send_movement_command(arduino, "1000")
+    wait_for_movement_to_complete(arduino)
+
+    close_connection(arduino)
+
 if __name__ == '__main__':
-    main()
+    go_down_and_up()

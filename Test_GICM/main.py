@@ -7,7 +7,7 @@ from temperature_sensors import thermometers_driver as td
 import numpy as np
 import time
 
-motor_port = "COM12" # Port for Arduino connected to step motor
+motor_port = "COM4" # Port for Arduino connected to step motor
 motor = md.connect_to_arduino(motor_port) # Create the connection
 
 thermometers_port = "COM5" # Port for thermometers
@@ -26,7 +26,7 @@ finalC = 2.4e-2
 setpC = 2.4e-3
 
 currents = np.arange(initialC, finalC, setpC) # numerical array with all current value
-
+currents1 = np.linspace(initialC, finalC, 3)
 delay = 1
 
 tiempo = time.time() # Obtiene el tiempo actual
@@ -36,14 +36,38 @@ md.wait_for_movement_to_complete(motor)
 #----------------------------------------------------------------------------
 
 # Loop to do the experimental measures at each step
-for i in currents:
+for i in currents1:
     level = i # Incrementa el nivel del source
-    sv.program_source(source, voltmeter, level, delay,tiempo) # Programa y mide
+    md.send_movement_command(motor, "-25")
+    md.wait_for_movement_to_complete(motor)  # Ensure movement is completed
+
+    time.sleep(1)
+
+    sv.program_source(source, voltmeter, level, delay, tiempo) # Programa y mide
+
+    time.sleep(1)
 
     temp1, temp2 = td.query_temperatures(thermometers)
     print(f"Temperature 1: {temp1} °C, Temperature 2: {temp2} °C")
 
-    md.send_movement_command(motor, "-20")
+    time.sleep(1)
+
+for i in currents1:
+    level = i # Incrementa el nivel del source
+    md.send_movement_command(motor, "25")
+    md.wait_for_movement_to_complete(motor)  # Ensure movement is completed
+
+    time.sleep(1)
+
+    sv.program_source(source, voltmeter, level, delay, tiempo) # Programa y mide
+
+    time.sleep(1)
+
+    temp1, temp2 = td.query_temperatures(thermometers)
+    print(f"Temperature 1: {temp1} °C, Temperature 2: {temp2} °C")
+
+    time.sleep(1)
+
 #----------------------------------------------------------------------------
 
 # Finish the protocol

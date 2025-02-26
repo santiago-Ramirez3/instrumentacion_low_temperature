@@ -70,7 +70,7 @@ void loop() {
     stepper.stop();
     //digitalWrite(ENABLE_PIN, HIGH);
     stopMotorUP = false; // Reset the flag
-    Serial.println("Motor stopped due to endstop switch.");
+    Serial.println("Reached top");
     //stepper.move(-0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(-100*5);
   }
@@ -81,7 +81,7 @@ void loop() {
     stepper.stop();
     //digitalWrite(ENABLE_PIN, HIGH);
     stopMotorDOWN = false; // Reset the flag
-    Serial.println("Motor stopped due to endstop switch.");
+    Serial.println("Reached bottom");
     //stepper.move(0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(100*5);
   }
