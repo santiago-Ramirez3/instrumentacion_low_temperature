@@ -41,20 +41,25 @@ def send_movement_command(arduino, distance_mm):
 
 def read_response(arduino):
     """
-    Reads the response from the Arduino, including:
-      - Confirmation of received distance
-      - Notification of movement completion
-      - Interrupt notifications
+    Reads all available data from the Arduino's serial buffer until a newline ("\n") is encountered.
+    Returns the full response as a string or None if no response is available.
     """
     try:
+        response = ""
         while arduino.in_waiting > 0:
-            response = arduino.readline().decode().strip()
-            if response:
-                print(response) 
-                return response
+            response += arduino.read(arduino.in_waiting).decode()
+            if "\n" in response:
+                break
+
+        response = response.strip()
+        if response:
+            print(response)
+        return response if response else None
+
     except Exception as e:
         print("Error while reading from Arduino:", e)
         return None
+
 
 def wait_for_movement_to_complete(arduino):
     """
@@ -62,8 +67,17 @@ def wait_for_movement_to_complete(arduino):
     """
     print("Waiting for movement to complete...")
     while True:
-        if read_response(arduino) == "Motor movement complete":
-            return # stops waiting when the response is Motor movement complete (may it will be changed for a shorter response)
+        response = read_response(arduino)
+        if response:
+            if ("Reached top" in response):
+                print('Finished by: ',response)
+                return response
+            if ("Reached bottom" in response):
+                print('Finished by: ',response)
+                return response # stops waiting when the response is Motor movement complete (may it will be changed for a shorter response)
+            elif ("Motor movement complete" in response):
+                print('Finished by: ',response)
+                return response
         time.sleep(0.1)  # Adjust the polling frequency if needed
 
 def close_connection(arduino):
@@ -76,7 +90,7 @@ def close_connection(arduino):
 
 # The following is an example function to control the step by step motor
 def main():
-    port = 'COM12'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
+    port = 'COM4'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
     arduino = connect_to_arduino(port)
 
     if arduino:
@@ -105,7 +119,7 @@ def go_down_and_up():
 
     send_movement_command(arduino, "-1000")
     wait_for_movement_to_complete(arduino)
-
+    time.sleep(5)
     send_movement_command(arduino, "1000")
     wait_for_movement_to_complete(arduino)
 

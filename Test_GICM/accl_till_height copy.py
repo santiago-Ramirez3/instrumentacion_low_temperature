@@ -15,7 +15,7 @@ thermometers = td.connect_to_arduino(thermometers_port)  # Create the thermomete
 # ----------------------------------------------------------------------------
 # Experiment Parameters
 initial_height = 1000   # Starting height
-distance_to_move = -20   # Step size for each movement
+distance_to_move = -15   # Step size for each movement
 tolerance = 0.3          # Tolerance for acclimatization
 
 # Data storage for all measurements
@@ -24,12 +24,15 @@ data = []
 # Initialize experiment
 current_height = initial_height
 md.send_movement_command(motor, str(initial_height))  # Set system to initial height
-md.wait_for_movement_to_complete(motor)
+response = md.wait_for_movement_to_complete(motor)
+
+time.sleep(2)
 
 md.send_movement_command(motor, str(-130))
-md.wait_for_movement_to_complete(motor)
+response = md.wait_for_movement_to_complete(motor)
 
 # ----------------------------------------------------------------------------
+# Main experiment loop
 # Main experiment loop
 while current_height > 200:
     print(f"\nStarting measurements at height: {current_height}")
@@ -39,6 +42,9 @@ while current_height > 200:
     last_three_temp2 = []
 
     while True:
+        # Check again if the bottom is reached, even during acclimatization
+        
+
         # Read temperatures from the two sensors
         temp1, temp2 = td.query_temperatures(thermometers)  # temp1 = ambient, temp2 = water
 
@@ -79,17 +85,25 @@ while current_height > 200:
 
         time.sleep(1)  # Wait 1 second between measurements
 
+    
+
     # Move system down for the next measurement phase
     current_height += distance_to_move  # Update the current height
     md.send_movement_command(motor, str(distance_to_move))
-    md.wait_for_movement_to_complete(motor)
+    response = md.wait_for_movement_to_complete(motor)
+    time.sleep(0.5)
+
+    # If "Reached bottom" was detected, break out of the main loop
+    if "Reached bottom" in response:
+            print("Bottom detected during acclimatization. Stopping and moving up...")
+            break
 
 # ----------------------------------------------------------------------------
 # Finish the protocol
 print("Experiment completed. Moving system back to the top...")
-
+time.sleep(3)
 md.send_movement_command(motor, str(initial_height))  # Move back up
-md.wait_for_movement_to_complete(motor)
+response = md.wait_for_movement_to_complete(motor)
 
 # Close connections
 md.close_connection(motor)
@@ -98,6 +112,6 @@ td.close_connection(thermometers)
 # ----------------------------------------------------------------------------
 # Save data to Excel
 df = pd.DataFrame(data, columns=["Time", "Height", "Temp1 (Ambient)", "Temp2 (Water)"])
-excel_filename = "temperature_measurements_4.csv"
+excel_filename = "temperature_measurements_"+time.strftime("%Y_%m_%d_%H_%M_%S")+".csv"
 df.to_csv(excel_filename, index=False)
 print(f"Data saved to {excel_filename}")

@@ -15,8 +15,8 @@ thermometers = td.connect_to_arduino(thermometers_port)  # Create the thermomete
 # ----------------------------------------------------------------------------
 # Experiment Parameters
 initial_height = 1000   # Starting height
-distance_to_move = -25   # Step size for each movement
-tolerance = 0.5          # Tolerance for acclimatization
+distance_to_move = -100   # Step size for each movement
+tolerance = 0.3          # Tolerance for acclimatization
 stop_temperature = 0.0   # Target temperature to stop the experiment
 
 # Data storage for all measurements
@@ -25,11 +25,15 @@ data = []
 # Initialize experiment
 current_height = initial_height
 md.send_movement_command(motor, str(initial_height))  # Set system to initial height
-md.wait_for_movement_to_complete(motor)
+response = md.wait_for_movement_to_complete(motor)
 
+md.send_movement_command(motor, str(-130))
+response = md.wait_for_movement_to_complete(motor)
+
+control_temperature = td.query_temperatures(thermometers)[0]
 # ----------------------------------------------------------------------------
 # Main experiment loop
-while True:
+while control_temperature > stop_temperature:
     print(f"\nStarting measurements at height: {current_height}")
 
     # Store the last three measurements for acclimatization check
@@ -37,6 +41,11 @@ while True:
     last_three_temp2 = []
 
     while True:
+        # Continuously check for "Reached bottom" message
+        if response == "Reached bottom":
+            print("Bottom detected during acclimatization. Stopping and moving up...")
+            break
+
         # Read temperatures from the two sensors
         temp1, temp2 = td.query_temperatures(thermometers)  # temp1 = ambient, temp2 = water
 
@@ -85,14 +94,18 @@ while True:
     # Move system down for the next measurement phase
     current_height += distance_to_move  # Update the current height
     md.send_movement_command(motor, str(distance_to_move))
-    md.wait_for_movement_to_complete(motor)
+    response = md.wait_for_movement_to_complete(motor)
+
+    # If "Reached bottom" was detected, break out of the main loop
+    if response == "Reached bottom":
+        break
 
 # ----------------------------------------------------------------------------
 # Finish the protocol
 print("Experiment completed. Moving system back to the top...")
-
+time.sleep(3)
 md.send_movement_command(motor, str(initial_height))  # Move back up
-md.wait_for_movement_to_complete(motor)
+response = md.wait_for_movement_to_complete(motor)
 
 # Close connections
 md.close_connection(motor)

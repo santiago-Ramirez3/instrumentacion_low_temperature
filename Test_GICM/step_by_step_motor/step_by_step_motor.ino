@@ -20,6 +20,8 @@ float desiredDistance = 0;
 volatile bool stopMotorUP = false;
 volatile bool stopMotorDOWN = false; 
 
+volatile bool touchButtom = false;
+
 void setup() {
   // Set up the serial communication
   Serial.begin(115200);
@@ -73,6 +75,7 @@ void loop() {
     Serial.println("Reached top");
     //stepper.move(-0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(-100*5);
+    touchButtom = false;
   }
 
   // Check if the motor should be stopped
@@ -84,6 +87,7 @@ void loop() {
     Serial.println("Reached bottom");
     //stepper.move(0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(100*5);
+    touchButtom = false;
   }
 
   // Run the stepper motor
@@ -94,17 +98,21 @@ void loop() {
   if (stepper.distanceToGo() == 0 && desiredDistance != 0) {
     // Motor has reached the desired position
     // You can add any additional code here to perform actions after the motor movement is complete
-    Serial.println("Motor movement complete");
+    if (!touchButtom){
+    Serial.println("Motor movement complete");}
     desiredDistance = 0; // Reset the desired distance
+    touchButtom = false;
   }
 }
 
 // Interrupt service routine to stop the motor
 void stopMotorInterruptUP() {
   stopMotorUP = true;
+  touchButtom = true;
 }
 
 // Interrupt service routine to stop the motor
 void stopMotorInterruptDOWN() {
   stopMotorDOWN = true;
+  touchButtom = true;
 }
