@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(115200);
 
   // Set the maximum speed and acceleration of the motor
-  stepper.setMaxSpeed(2200); // Change this value to adjust the maximum speed of the motor
+  stepper.setMaxSpeed(2000); // Change this value to adjust the maximum speed of the motor
   stepper.setAcceleration(10000); // Change this value to adjust the acceleration of the motor
   
   // Set the D3 (INT1) pin as an input
@@ -39,11 +39,15 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(3), stopMotorInterruptDOWN, FALLING);
   // Attach the interrupt to the D2 (INT0) pin and specify the function to 2call
   attachInterrupt(digitalPinToInterrupt(2), stopMotorInterruptUP, FALLING);
+  stopMotorUP = false;
+  stopMotorDOWN = false; 
+  touchButtom = false;
 }
 
 void loop() {
   // Check if there is data available to read from the serial port
   if (Serial.available() > 0) {
+    Serial.println("Information in buffer");
     // Read the entire string until a new line is received
     String input = Serial.readStringUntil('\n');
     input.trim(); // Remove leading/trailing whitespaces
@@ -75,7 +79,6 @@ void loop() {
     Serial.println("Reached top");
     //stepper.move(-0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(-100*5);
-    touchButtom = false;
   }
 
   // Check if the motor should be stopped
@@ -87,7 +90,6 @@ void loop() {
     Serial.println("Reached bottom");
     //stepper.move(0.6 * 189.0427018336821 + 13.19385226180907);
     stepper.move(100*5);
-    touchButtom = false;
   }
 
   // Run the stepper motor

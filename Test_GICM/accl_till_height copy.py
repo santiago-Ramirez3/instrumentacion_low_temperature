@@ -31,6 +31,8 @@ time.sleep(2)
 md.send_movement_command(motor, str(-130))
 response = md.wait_for_movement_to_complete(motor)
 
+time.sleep(8)
+
 # ----------------------------------------------------------------------------
 # Main experiment loop
 # Main experiment loop
@@ -42,9 +44,6 @@ while current_height > 200:
     last_three_temp2 = []
 
     while True:
-        # Check again if the bottom is reached, even during acclimatization
-        
-
         # Read temperatures from the two sensors
         temp1, temp2 = td.query_temperatures(thermometers)  # temp1 = ambient, temp2 = water
 
@@ -112,6 +111,6 @@ td.close_connection(thermometers)
 # ----------------------------------------------------------------------------
 # Save data to Excel
 df = pd.DataFrame(data, columns=["Time", "Height", "Temp1 (Ambient)", "Temp2 (Water)"])
-excel_filename = "temperature_measurements_"+time.strftime("%Y_%m_%d_%H_%M_%S")+".csv"
+excel_filename = "temp_measurements_till_height"+time.strftime("%Y_%m_%d_%H_%M_%S")+".csv"
 df.to_csv(excel_filename, index=False)
 print(f"Data saved to {excel_filename}")

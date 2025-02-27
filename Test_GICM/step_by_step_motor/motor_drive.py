@@ -117,6 +117,9 @@ def go_down_and_up():
     port = 'COM4'  # Change this to your Arduino's port (e.g., '/dev/ttyUSB0' on Linux)
     arduino = connect_to_arduino(port)
 
+    send_movement_command(arduino, "1000")
+    wait_for_movement_to_complete(arduino)
+    time.sleep(5)
     send_movement_command(arduino, "-1000")
     wait_for_movement_to_complete(arduino)
     time.sleep(5)
