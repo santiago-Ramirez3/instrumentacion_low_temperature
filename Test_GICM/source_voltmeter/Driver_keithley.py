@@ -25,7 +25,8 @@ def program_source(source, voltmeter, level, delay, tiempo):
     source.write("H0X") # Envia la señal del trigger
     source.write("G1,2,0X") # Configura el formato de comunicacion del source con la computadora
     time.sleep(delay) # Espera por el tiempo especificado
-    medir_source_y_voltmeter(source, voltmeter, tiempo) # Mide 
+    source_measure, volt_measure = medir_source_y_voltmeter(source, voltmeter, tiempo) # Mide 
+    return source_measure, volt_measure
 
 def medir_source_y_voltmeter(source, voltmeter, tiempo):
     tiempo_maximo = 0.01 # Define el tiempo máximo de medición en la iteración, para poder tomar varios valores en un intervalo de tiempo antes de pasar al siguiente nivel de corriente
@@ -37,6 +38,7 @@ def medir_source_y_voltmeter(source, voltmeter, tiempo):
         print("valor medido del source:", BUFFER_source)
         BUFFER_voltmeter = float(voltmeter.query("*IDN?")) # Lee el valor del voltímetro
         print("valor medido del voltímetro:", BUFFER_voltmeter)
+    return BUFFER_source, BUFFER_voltmeter
 
 def connect_intruments(source_address, voltmeter_address):
     try:

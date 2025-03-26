@@ -4,14 +4,12 @@ from step_by_step_motor import motor_drive as md
 from temperature_sensors import thermometers_driver as td
 
 # Import libreries
+import pandas as pd
 import numpy as np
 import time
 
 motor_port = "COM14" # Port for Arduino connected to step motor
 motor = md.connect_to_arduino(motor_port) # Create the connection
-
-thermometers_port = "COM13" # Port for thermometers
-thermometers = td.connect_to_arduino(thermometers_port) # Create the connection
 
 voltmeter_address = 'GPIB0::22::INSTR' # Voltmeter GPIB address
 source_address = 'GPIB0::16::INSTR' # Source GPIB address
@@ -20,53 +18,49 @@ source, voltmeter = sv.connect_intruments(source_address, voltmeter_address) # c
 
 #----------------------------------------------------------------------------
 
+
 # Define  initial, final and current step un Amperes
 initialC = 0.0 
-finalC = 2.4e-2
-setpC = 2.4e-3
+finalC = 2.0e-2
 
-currents = np.arange(initialC, finalC, setpC) # numerical array with all current value
-currents1 = np.linspace(initialC, finalC, 3)
+
+#currents = np.arange(initialC, finalC, setpC) # numerical array with all current value
+currents1 = np.linspace(initialC, finalC, 10)
 delay = 1
 
 tiempo = time.time() # Obtiene el tiempo actual
 
 md.send_movement_command(motor, "1000") # Get up the system
 md.wait_for_movement_to_complete(motor)
+time.sleep(3)
+#md.send_movement_command(motor, "-1000") # Get up the system
+#md.wait_for_movement_to_complete(motor)
+#time.sleep(15)
+print("iniciando toma de datos")
 #----------------------------------------------------------------------------
 
-# Loop to do the experimental measures at each step
-for i in currents1:
-    level = i # Incrementa el nivel del source
-    md.send_movement_command(motor, "-25")
-    md.wait_for_movement_to_complete(motor)  # Ensure movement is completed
-
-    time.sleep(1)
-
-    sv.program_source(source, voltmeter, level, delay, tiempo) # Programa y mide
-
-    time.sleep(1)
-
-    temp1, temp2 = td.query_temperatures(thermometers)
-    print(f"Temperature 1: {temp1} °C, Temperature 2: {temp2} °C")
-
-    time.sleep(1)
+# Create an empty DataFrame to store the measurements
+columns = ["Current", "Source Measure", "Volt Measure", "Timestamp"]
+data = pd.DataFrame(columns=columns)
 
 for i in currents1:
-    level = i # Incrementa el nivel del source
-    md.send_movement_command(motor, "25")
-    md.wait_for_movement_to_complete(motor)  # Ensure movement is completed
+    level = i  # Set the source level
+    
+    # Program and measure
+    source_measure, volt_measure = sv.program_source(source, voltmeter, level, delay, tiempo)
+
+    # Capture timestamp
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Append the new measurement to the DataFrame
+    data = pd.concat([data, pd.DataFrame([[level, source_measure, volt_measure, timestamp]], columns=columns)], ignore_index=True)
 
     time.sleep(1)
 
-    sv.program_source(source, voltmeter, level, delay, tiempo) # Programa y mide
+# Save to CSV
+data.to_csv("measurements_6.csv", index=False)
+print("Measurements saved to measurements.csv")
 
-    time.sleep(1)
-
-    temp1, temp2 = td.query_temperatures(thermometers)
-    print(f"Temperature 1: {temp1} °C, Temperature 2: {temp2} °C")
-
-    time.sleep(1)
 
 #----------------------------------------------------------------------------
 
@@ -78,6 +72,5 @@ md.send_movement_command(motor, "1000") # Get up the system
 
 # close all connections
 md.close_connection(motor)
-td.close_connection(thermometers)
 sv.close_instruments(source, voltmeter)
 

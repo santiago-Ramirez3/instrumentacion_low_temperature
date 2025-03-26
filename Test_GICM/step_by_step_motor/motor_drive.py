@@ -35,6 +35,7 @@ def send_movement_command(arduino, distance_mm):
     command = f"M{distance_mm}\n" # command beginning with "M" and distance in mm.
     try:
         arduino.write(command.encode()) # write the command in serial port
+        time.sleep(0.2)
         #print(f"Sent command: {command.strip()}") # print the command, but it is not neccesary so far
     except Exception as e:
         print("Error while sending movement command:", e)
