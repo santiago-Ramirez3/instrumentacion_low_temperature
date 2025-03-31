@@ -39,7 +39,7 @@ def current_curve(color, temperature, source, voltmeter, initialC, finalC, nMeas
         time.sleep(1)
     
     # Save to CSV
-    data.to_csv(f"measurements_LED_{color}_{temperature}.csv", index=False)
+    data.to_csv(f"measurements_2803LED_{color}_{temperature}.csv", index=False)
     print("Measurements saved to measurements.csv")
     
     
@@ -164,7 +164,7 @@ response = md.wait_for_movement_to_complete(motor)
 time.sleep(10)
 # ----------------------------
 
-temperature_list = np.arange(-140,-220,-20)
+temperature_list = np.arange(-160,-220,-20)
 
 for temp in temperature_list:
     reach_temperature(target_temperature = temp,
