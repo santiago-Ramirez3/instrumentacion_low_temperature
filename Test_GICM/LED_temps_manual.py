@@ -27,7 +27,7 @@ def current_curve(color, temperature, source, voltmeter, initialC, finalC, nMeas
         
         time.sleep(1)
     
-    filename = f"measurements_{color}_{temperature}.csv"
+    filename = f"measurements_green_{temperature}.csv"
     data.to_csv(filename, index=False)
     print(f"Measurements saved to {filename}")
     
@@ -72,15 +72,15 @@ def manual_control_loop(thermometers, motor, source, voltmeter):
             print("Invalid input. Please enter a number or 'measure'.")
 
 # Device connections
-motor = md.connect_to_arduino("COM14")
-thermometers = td.connect_to_arduino("COM13")
+motor = md.connect_to_arduino("COM19")
+thermometers = td.connect_to_arduino("COM20")
 source, voltmeter = sv.connect_intruments('GPIB0::16::INSTR', 'GPIB0::22::INSTR')
 
 print("Moving system to initial height...")
 md.send_movement_command(motor, "1000")
 md.wait_for_movement_to_complete(motor)
 time.sleep(2)
-md.send_movement_command(motor, "-450")
+md.send_movement_command(motor, "-430")
 md.wait_for_movement_to_complete(motor)
 time.sleep(10)
 
